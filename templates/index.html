@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>House Scraper Control</title>
     <style>
-        /* CSS Variables for easy theme customization */
         :root {
             --bg-color: #121212;
             --primary-color: #1DB954;
@@ -20,7 +19,6 @@
             --box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.3);
         }
 
-        /* Apply theme globally */
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
@@ -37,7 +35,6 @@
             margin-bottom: 20px;
         }
 
-        /* Blocked URLs List */
         ul {
             list-style-type: none;
             padding: 0;
@@ -50,7 +47,6 @@
             border-radius: var(--border-radius);
         }
 
-        /* Forms and Inputs */
         form {
             margin-bottom: 20px;
             display: flex;
@@ -73,7 +69,6 @@
             color: #aaa;
         }
 
-        /* Buttons */
         button {
             background-color: var(--button-bg);
             color: var(--text-color);
@@ -94,7 +89,6 @@
             transform: scale(0.98);
         }
 
-        /* Responsive design */
         @media (max-width: 600px) {
             input[type="text"] {
                 width: 100%;
@@ -118,13 +112,27 @@
         <button type="submit">Add to Block</button>
     </form>
 
-    <h2>Control Scraper</h2>
+    <h2>autostart section</h2>
     <form action="{{ url_for('fetch_new_houses') }}" method="POST">
         <button type="submit">Fetch New Options</button>
     </form>
     <form action="{{ url_for('start_selenium') }}" method="POST">
         <button type="submit">Start Selenium</button>
     </form>
-    
+    <h2>Fetch  Rentals</h2>
+
+    <form action="{{ url_for('fetch_flats_for_rent') }}" method="POST">
+        <button type="submit">Flats for Rent</button>
+    </form>
+    <form action="{{ url_for('fetch_houses_for_rent') }}" method="POST">
+        <button type="submit">Houses for Rent</button>
+    </form>
+    <form action="{{ url_for('fetch_commercials_for_rent') }}" method="POST">
+        <button type="submit">Commercials for Rent</button>
+    </form>
+    <form action="{{ url_for('fetch_hotels_for_rent') }}" method="POST">
+        <button type="submit">Hotels for Rent</button>
+    </form>
+
 </body>
 </html>

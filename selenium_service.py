@@ -116,6 +116,8 @@ def close_driver():
     if driver:
         driver.quit()
         driver = None
+        
+
 
 def fetch_houses_from_url(url, page=1):
     url_with_page = f"{url}&page={page}"
@@ -168,12 +170,12 @@ def fetch_houses_from_url(url, page=1):
             fetched_houses.append(house_data)
 
         print(f"Fetched {len(fetched_houses)} houses from page {page} for URL: {url}.")
-
         return fetched_houses
 
     except Exception as e:
         print(f"Error fetching houses on page {page}: {e}")
         return []
+
 def fetch_houses_from_url(url, page=1):
     url_with_page = f"{url}&page={page}"
     headers = {
@@ -251,9 +253,7 @@ def fetch_new_houses():
     global scraper_thread, scraper_active
     if not scraper_active:
         scraper_active = True
-        
         all_urls = buy_urls + rent_urls
-        
         def scrape_all_urls():
             for url in all_urls:
                 fetch_houses_from_url(url, 1)  
@@ -287,6 +287,56 @@ def start_selenium():
     
     return redirect(url_for('index'))
 
+
+
+
+@app.route('/fetch_flats_for_rent', methods=['POST'])
+def fetch_flats_for_rent():
+    global scraper_thread, scraper_active
+    if not scraper_active:
+        scraper_active = True
+        url = "https://home.ss.ge/en/real-estate/l/Flat/For-Rent?cityIdList=95&currencyId=1&advancedSearch=%7B%22individualEntityOnly%22%3Atrue%7D"
+        
+        # scraper_thread = threading.Thread(target=scrape_all_pages, args=(url,), daemon=True)
+        scraper_thread.start()
+    
+    return redirect(url_for('index'))
+
+@app.route('/fetch_houses_for_rent', methods=['POST'])
+def fetch_houses_for_rent():
+    global scraper_thread, scraper_active
+    if not scraper_active:
+        scraper_active = True
+        url = "https://home.ss.ge/en/real-estate/l/Private-House/For-Rent?cityIdList=95&currencyId=1&advancedSearch=%7B%22individualEntityOnly%22%3Atrue%7D"
+        
+        # scraper_thread = threading.Thread(target=fetch_rentals_with_pagination, args=(url,), daemon=True)
+        scraper_thread.start()
+    
+    return redirect(url_for('index'))
+
+@app.route('/fetch_commercials_for_rent', methods=['POST'])
+def fetch_commercials_for_rent():
+    global scraper_thread, scraper_active
+    if not scraper_active:
+        scraper_active = True
+        url = "https://home.ss.ge/en/real-estate/l/Commercial-Real-Estate/For-Rent?cityIdList=95&currencyId=1&advancedSearch=%7B%22individualEntityOnly%22%3Atrue%7D"
+        
+        # scraper_thread = threading.Thread(target=fetch_rentals_with_pagination, args=(url,), daemon=True)
+        scraper_thread.start()
+    
+    return redirect(url_for('index'))
+
+@app.route('/fetch_hotels_for_rent', methods=['POST'])
+def fetch_hotels_for_rent():
+    global scraper_thread, scraper_active
+    if not scraper_active:
+        scraper_active = True
+        url = "https://home.ss.ge/en/real-estate/l/Hotel/For-Rent?cityIdList=95&currencyId=1&advancedSearch=%7B%22individualEntityOnly%22%3Atrue%7D"
+        
+        # scraper_thread = threading.Thread(target=fetch_rentals_with_pagination, args=(url,), daemon=True)
+        scraper_thread.start()
+    
+    return redirect(url_for('index'))
 
 if __name__ == '__main__':
     app.run(debug=True)
