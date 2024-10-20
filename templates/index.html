@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>House Scraper Control</title>
+</head>
+<body>
+    <h1>House Scraper Control Panel</h1>
+
+    <h2>Blocked Image URLs</h2>
+    <ul>
+        {% for url in blocked_urls %}
+        <li>{{ url }}</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Add URL to Block</h2>
+    <form action="{{ url_for('add_url') }}" method="POST">
+        <input type="text" name="url" placeholder="Enter image URL">
+        <button type="submit">Add to Block</button>
+    </form>
+
+    <h2>Control Scraper</h2>
+    <form action="{{ url_for('start_scraper') }}" method="POST">
+        <button type="submit">Start Scraper</button>
+    </form>
+
+    <form action="{{ url_for('stop_scraper') }}" method="POST">
+        <button type="submit">Stop Scraper</button>
+    </form>
+</body>
+</html>
