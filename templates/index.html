@@ -4,6 +4,103 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>House Scraper Control</title>
+    <style>
+        /* CSS Variables for easy theme customization */
+        :root {
+            --bg-color: #121212;
+            --primary-color: #1DB954;
+            --secondary-color: #424242;
+            --text-color: #FFFFFF;
+            --button-bg: #1DB954;
+            --button-hover-bg: #1ED760;
+            --input-bg: #333;
+            --input-text-color: #FFF;
+            --border-radius: 4px;
+            --transition-speed: 0.3s;
+            --box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Apply theme globally */
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1, h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        /* Blocked URLs List */
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            background-color: var(--secondary-color);
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: var(--border-radius);
+        }
+
+        /* Forms and Inputs */
+        form {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            border-radius: var(--border-radius);
+            border: none;
+            background-color: var(--input-bg);
+            color: var(--input-text-color);
+            margin-bottom: 10px;
+            width: 300px;
+            outline: none;
+        }
+
+        input[type="text"]::placeholder {
+            color: #aaa;
+        }
+
+        /* Buttons */
+        button {
+            background-color: var(--button-bg);
+            color: var(--text-color);
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            box-shadow: var(--box-shadow);
+            transition: background-color var(--transition-speed), box-shadow var(--transition-speed);
+        }
+
+        button:hover {
+            background-color: var(--button-hover-bg);
+            box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        /* Responsive design */
+        @media (max-width: 600px) {
+            input[type="text"] {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
     <h1>House Scraper Control Panel</h1>
@@ -22,12 +119,12 @@
     </form>
 
     <h2>Control Scraper</h2>
-    <form action="{{ url_for('start_scraper') }}" method="POST">
-        <button type="submit">Start Scraper</button>
+    <form action="{{ url_for('fetch_new_houses') }}" method="POST">
+        <button type="submit">Fetch New Options</button>
     </form>
-
-    <form action="{{ url_for('stop_scraper') }}" method="POST">
-        <button type="submit">Stop Scraper</button>
+    <form action="{{ url_for('start_selenium') }}" method="POST">
+        <button type="submit">Start Selenium</button>
     </form>
+    
 </body>
 </html>
