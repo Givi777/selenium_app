@@ -4,102 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>House Scraper Control</title>
-    <style>
-        :root {
-            --bg-color: #121212;
-            --primary-color: #1DB954;
-            --secondary-color: #424242;
-            --text-color: #FFFFFF;
-            --button-bg: #1DB954;
-            --button-hover-bg: #1ED760;
-            --input-bg: #333;
-            --input-text-color: #FFF;
-            --border-radius: 4px;
-            --transition-speed: 0.3s;
-            --box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.3);
-        }
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: 'Roboto', sans-serif;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        h1, h2 {
-            color: var(--primary-color);
-            margin-bottom: 20px;
-        }
-
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        li {
-            background-color: var(--secondary-color);
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: var(--border-radius);
-        }
-
-        form {
-            margin-bottom: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        input[type="text"] {
-            padding: 10px;
-            border-radius: var(--border-radius);
-            border: none;
-            background-color: var(--input-bg);
-            color: var(--input-text-color);
-            margin-bottom: 10px;
-            width: 300px;
-            outline: none;
-        }
-
-        input[type="text"]::placeholder {
-            color: #aaa;
-        }
-
-        button {
-            background-color: var(--button-bg);
-            color: var(--text-color);
-            padding: 10px 20px;
-            border: none;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            box-shadow: var(--box-shadow);
-            transition: background-color var(--transition-speed), box-shadow var(--transition-speed);
-        }
-
-        button:hover {
-            background-color: var(--button-hover-bg);
-            box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.5);
-        }
-
-        button:active {
-            transform: scale(0.98);
-        }
-
-        @media (max-width: 600px) {
-            input[type="text"] {
-                width: 100%;
-            }
-        }
-    </style>
 </head>
 <body>
-    <h1>House Scraper Control Panel</h1>
-
-    <h2>Blocked Image URLs</h2>
+    <h2>Block Ads URLs</h2>
     <ul>
         {% for url in blocked_urls %}
         <li>{{ url }}</li>
