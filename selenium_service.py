@@ -9,7 +9,7 @@ import time
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from pymongo import MongoClient, e
+from pymongo import MongoClient
 import logging
 from selenium.webdriver.firefox.service import Service as FirefoxService
 from webdriver_manager.firefox import GeckoDriverManager
@@ -34,17 +34,17 @@ logging.basicConfig(filename='scraper.log', level=logging.INFO,
                     format='%(asctime)s - %(message)s')
 
 buy_urls = [
-    "https://home.ss.ge/en/real-estate/l/Flat/For-Sale?cityIdList=95&currencyId=1&advancedSearch=%7B%22individualEntityOnly%22%3Atrue%7D&page={page}",
-    "https://home.ss.ge/en/real-estate/l/Private-House/For-Sale?cityIdList=95&currencyId=1&advancedSearch=%7B%22individualEntityOnly%22%3Atrue%7D&page={page}",
-    "https://home.ss.ge/en/real-estate/l/Hotel/For-Sale?cityIdList=95&currencyId=1&advancedSearch=%7B%22individualEntityOnly%22%3Atrue%7D&page={page}",
-    "https://home.ss.ge/en/real-estate/l/Commercial-Real-Estate/For-Sale?cityIdList=95&currencyId=1&advancedSearch=%7B%22individualEntityOnly%22%3Atrue%7D&page={page}"
+    "https://home.ss.ge/en/real-estate/l/Flat/For-Sale?cityIdList=95&currencyId=1&advancedSearch=%7B%22individualEntityOnly%22%3Atrue%7D",
+    "https://home.ss.ge/en/real-estate/l/Private-House/For-Sale?cityIdList=95&currencyId=1&advancedSearch=%7B%22individualEntityOnly%22%3Atrue%7D",
+    "https://home.ss.ge/en/real-estate/l/Hotel/For-Sale?cityIdList=95&currencyId=1&advancedSearch=%7B%22individualEntityOnly%22%3Atrue%7D",
+    "https://home.ss.ge/en/real-estate/l/Commercial-Real-Estate/For-Sale?cityIdList=95&currencyId=1&advancedSearch=%7B%22individualEntityOnly%22%3Atrue%7D"
 ]
 
 rent_urls = [
-    "https://home.ss.ge/en/real-estate/l/Flat/For-Rent?cityIdList=95&currencyId=1&advancedSearch=%7B%22individualEntityOnly%22%3Atrue%7D&page={page}",
-    "https://home.ss.ge/en/real-estate/l/Private-House/For-Rent?cityIdList=95&currencyId=1&advancedSearch=%7B%22individualEntityOnly%22%3Atrue%7D&page={page}",
-    "https://home.ss.ge/en/real-estate/l/Hotel/For-Rent?cityIdList=95&currencyId=1&advancedSearch=%7B%22individualEntityOnly%22%3Atrue%7D&page={page}",
-    "https://home.ss.ge/en/real-estate/l/Commercial-Real-Estate/For-Rent?cityIdList=95&currencyId=1&advancedSearch=%7B%22individualEntityOnly%22%3Atrue%7D&page={page}"
+    "https://home.ss.ge/en/real-estate/l/Flat/For-Rent?cityIdList=95&currencyId=1&advancedSearch=%7B%22individualEntityOnly%22%3Atrue%7D",
+    "https://home.ss.ge/en/real-estate/l/Private-House/For-Rent?cityIdList=95&currencyId=1&advancedSearch=%7B%22individualEntityOnly%22%3Atrue%7D",
+    "https://home.ss.ge/en/real-estate/l/Hotel/For-Rent?cityIdList=95&currencyId=1&advancedSearch=%7B%22individualEntityOnly%22%3Atrue%7D",
+    "https://home.ss.ge/en/real-estate/l/Commercial-Real-Estate/For-Rent?cityIdList=95&currencyId=1&advancedSearch=%7B%22individualEntityOnly%22%3Atrue%7D"
 ]
 
 def fetch_house_images_selenium_sync(house_link):
@@ -170,63 +170,6 @@ def fetch_houses_from_url(url, page=1):
             fetched_houses.append(house_data)
 
         print(f"Fetched {len(fetched_houses)} houses from page {page} for URL: {url}.")
-        return fetched_houses
-
-    except Exception as e:
-        print(f"Error fetching houses on page {page}: {e}")
-        return []
-
-def fetch_houses_from_url(url, page=1):
-    url_with_page = f"{url}&page={page}"
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
-    }
-    
-    try:
-        response = requests.get(url_with_page, headers=headers)
-        if response.status_code == 403:
-            print(f"Access forbidden on page {page}")
-            return []
-
-        soup = BeautifulSoup(response.content, 'html.parser')
-        house_list = soup.find_all('div', class_='sc-8fa2c16a-0')
-
-        if not house_list:
-            print(f"No more houses found on page {page}.")
-            return []
-
-        fetched_houses = []
-        for house in house_list:
-            link_tag = house.find('a', href=True)
-            house_link = f"https://home.ss.ge{link_tag['href']}" if link_tag else None
-
-            house_id = link_tag['href'].split('-')[-1] if link_tag and 'href' in link_tag.attrs else None
-
-            if collection.find_one({'houseId': house_id}):
-                print(f"House ID {house_id} already exists. Skipping...")
-                continue
-
-            photos = fetch_house_images_selenium_sync(house_link) if house_link else []
-
-            if not photos:
-                print(f"House ID {house_id} has no images. Skipping...")
-                continue
-
-            unique_photos = [photo for photo in photos if not collection.find_one({'photos': photo})]
-
-            if not unique_photos:
-                print(f"House ID {house_id} has no unique images. Skipping...")
-                continue
-
-            house_data = {
-                'houseId': house_id,
-                'photos': unique_photos,
-            }
-
-            collection.insert_one(house_data)
-            fetched_houses.append(house_data)
-
-        print(f"Fetched {len(fetched_houses)} houses from page {page} for URL: {url}.")
 
         return fetched_houses
 
@@ -273,26 +216,19 @@ def start_selenium():
         all_urls = buy_urls + rent_urls
         
         def scrape_all_pages():
-            try:
-                for url in all_urls:
-                    page = 1
-                    while True:
-                        fetched_houses = fetch_houses_from_url(url, page)
-                        if not fetched_houses:  
-                            print(f"No houses found on page {page} for {url}. Moving to the next URL.")
-                            break
-                        print(f"Fetched houses from page {page} for {url}.")
-                        page += 1  
-                print(f"Error during scraping: {e}")
-            finally:
-                global scraper_active
-                scraper_active = False 
+            for url in all_urls:
+                page = 1
+                while True:
+                    fetched_houses = fetch_houses_from_url(url, page)
+                    if not fetched_houses:  
+                        break
+                    page += 1 
+            scraper_active = False 
         
         scraper_thread = threading.Thread(target=scrape_all_pages, daemon=True)
         scraper_thread.start()
     
     return redirect(url_for('index'))
-
 
 
 @app.route('/remove_blocked_urls', methods=['POST'])
@@ -313,7 +249,5 @@ def remove_blocked_urls():
         print("No blocked URLs to remove.")
 
     return redirect(url_for('index'))
-
-
 if __name__ == '__main__':
     app.run(debug=True)
