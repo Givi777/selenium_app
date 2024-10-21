@@ -288,55 +288,23 @@ def start_selenium():
     return redirect(url_for('index'))
 
 
+@app.route('/remove_url', methods=['POST'])
+def remove_url():
+    url_to_remove = request.form.get('url')
 
+    if url_to_remove:
+        result = collection.update_many(
+            {'photos': url_to_remove}, 
+            {'$pull': {'photos': url_to_remove}}
+        )
 
-@app.route('/fetch_flats_for_rent', methods=['POST'])
-def fetch_flats_for_rent():
-    global scraper_thread, scraper_active
-    if not scraper_active:
-        scraper_active = True
-        url = "https://home.ss.ge/en/real-estate/l/Flat/For-Rent?cityIdList=95&currencyId=1&advancedSearch=%7B%22individualEntityOnly%22%3Atrue%7D"
-        
-        # scraper_thread = threading.Thread(target=scrape_all_pages, args=(url,), daemon=True)
-        scraper_thread.start()
-    
+        if result.modified_count > 0:
+            print(f"Removed {url_to_remove} from {result.modified_count} documents.")
+        else:
+            print(f"URL {url_to_remove} not found in any document.")
+
     return redirect(url_for('index'))
 
-@app.route('/fetch_houses_for_rent', methods=['POST'])
-def fetch_houses_for_rent():
-    global scraper_thread, scraper_active
-    if not scraper_active:
-        scraper_active = True
-        url = "https://home.ss.ge/en/real-estate/l/Private-House/For-Rent?cityIdList=95&currencyId=1&advancedSearch=%7B%22individualEntityOnly%22%3Atrue%7D"
-        
-        # scraper_thread = threading.Thread(target=fetch_rentals_with_pagination, args=(url,), daemon=True)
-        scraper_thread.start()
-    
-    return redirect(url_for('index'))
-
-@app.route('/fetch_commercials_for_rent', methods=['POST'])
-def fetch_commercials_for_rent():
-    global scraper_thread, scraper_active
-    if not scraper_active:
-        scraper_active = True
-        url = "https://home.ss.ge/en/real-estate/l/Commercial-Real-Estate/For-Rent?cityIdList=95&currencyId=1&advancedSearch=%7B%22individualEntityOnly%22%3Atrue%7D"
-        
-        # scraper_thread = threading.Thread(target=fetch_rentals_with_pagination, args=(url,), daemon=True)
-        scraper_thread.start()
-    
-    return redirect(url_for('index'))
-
-@app.route('/fetch_hotels_for_rent', methods=['POST'])
-def fetch_hotels_for_rent():
-    global scraper_thread, scraper_active
-    if not scraper_active:
-        scraper_active = True
-        url = "https://home.ss.ge/en/real-estate/l/Hotel/For-Rent?cityIdList=95&currencyId=1&advancedSearch=%7B%22individualEntityOnly%22%3Atrue%7D"
-        
-        # scraper_thread = threading.Thread(target=fetch_rentals_with_pagination, args=(url,), daemon=True)
-        scraper_thread.start()
-    
-    return redirect(url_for('index'))
 
 if __name__ == '__main__':
     app.run(debug=True)

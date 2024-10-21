@@ -20,28 +20,18 @@
         <input type="text" name="url" placeholder="Enter image URL">
         <button type="submit">Add to Block</button>
     </form>
-
-    <h2>autostart section</h2>
+    <h2>Remove Ad URL</h2>
+    <form action="{{ url_for('remove_url') }}" method="POST">
+        <input type="text" name="url" placeholder="Enter image URL to remove">
+        <button type="submit">Remove from Block</button>
+    </form>
+    <h2>Autostart section</h2>
     <form action="{{ url_for('fetch_new_houses') }}" method="POST">
         <button type="submit">Fetch New Options</button>
     </form>
+    <h2>Fetch  all</h2>
     <form action="{{ url_for('start_selenium') }}" method="POST">
         <button type="submit">Start Selenium</button>
     </form>
-    <h2>Fetch  Rentals</h2>
-
-    <form action="{{ url_for('fetch_flats_for_rent') }}" method="POST">
-        <button type="submit">Flats for Rent</button>
-    </form>
-    <form action="{{ url_for('fetch_houses_for_rent') }}" method="POST">
-        <button type="submit">Houses for Rent</button>
-    </form>
-    <form action="{{ url_for('fetch_commercials_for_rent') }}" method="POST">
-        <button type="submit">Commercials for Rent</button>
-    </form>
-    <form action="{{ url_for('fetch_hotels_for_rent') }}" method="POST">
-        <button type="submit">Hotels for Rent</button>
-    </form>
-
 </body>
 </html>
