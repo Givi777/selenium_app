@@ -9,7 +9,7 @@ import time
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from pymongo import MongoClient
+from pymongo import MongoClient, e
 import logging
 from selenium.webdriver.firefox.service import Service as FirefoxService
 from webdriver_manager.firefox import GeckoDriverManager
@@ -34,17 +34,17 @@ logging.basicConfig(filename='scraper.log', level=logging.INFO,
                     format='%(asctime)s - %(message)s')
 
 buy_urls = [
-    "https://home.ss.ge/en/real-estate/l/Flat/For-Sale?cityIdList=95&currencyId=1&advancedSearch=%7B%22individualEntityOnly%22%3Atrue%7D",
-    "https://home.ss.ge/en/real-estate/l/Private-House/For-Sale?cityIdList=95&currencyId=1&advancedSearch=%7B%22individualEntityOnly%22%3Atrue%7D",
-    "https://home.ss.ge/en/real-estate/l/Hotel/For-Sale?cityIdList=95&currencyId=1&advancedSearch=%7B%22individualEntityOnly%22%3Atrue%7D",
-    "https://home.ss.ge/en/real-estate/l/Commercial-Real-Estate/For-Sale?cityIdList=95&currencyId=1&advancedSearch=%7B%22individualEntityOnly%22%3Atrue%7D"
+    "https://home.ss.ge/en/real-estate/l/Flat/For-Sale?cityIdList=95&currencyId=1&advancedSearch=%7B%22individualEntityOnly%22%3Atrue%7D&page={page}",
+    "https://home.ss.ge/en/real-estate/l/Private-House/For-Sale?cityIdList=95&currencyId=1&advancedSearch=%7B%22individualEntityOnly%22%3Atrue%7D&page={page}",
+    "https://home.ss.ge/en/real-estate/l/Hotel/For-Sale?cityIdList=95&currencyId=1&advancedSearch=%7B%22individualEntityOnly%22%3Atrue%7D&page={page}",
+    "https://home.ss.ge/en/real-estate/l/Commercial-Real-Estate/For-Sale?cityIdList=95&currencyId=1&advancedSearch=%7B%22individualEntityOnly%22%3Atrue%7D&page={page}"
 ]
 
 rent_urls = [
-    "https://home.ss.ge/en/real-estate/l/Flat/For-Rent?cityIdList=95&currencyId=1&advancedSearch=%7B%22individualEntityOnly%22%3Atrue%7D",
-    "https://home.ss.ge/en/real-estate/l/Private-House/For-Rent?cityIdList=95&currencyId=1&advancedSearch=%7B%22individualEntityOnly%22%3Atrue%7D",
-    "https://home.ss.ge/en/real-estate/l/Hotel/For-Rent?cityIdList=95&currencyId=1&advancedSearch=%7B%22individualEntityOnly%22%3Atrue%7D",
-    "https://home.ss.ge/en/real-estate/l/Commercial-Real-Estate/For-Rent?cityIdList=95&currencyId=1&advancedSearch=%7B%22individualEntityOnly%22%3Atrue%7D"
+    "https://home.ss.ge/en/real-estate/l/Flat/For-Rent?cityIdList=95&currencyId=1&advancedSearch=%7B%22individualEntityOnly%22%3Atrue%7D&page={page}",
+    "https://home.ss.ge/en/real-estate/l/Private-House/For-Rent?cityIdList=95&currencyId=1&advancedSearch=%7B%22individualEntityOnly%22%3Atrue%7D&page={page}",
+    "https://home.ss.ge/en/real-estate/l/Hotel/For-Rent?cityIdList=95&currencyId=1&advancedSearch=%7B%22individualEntityOnly%22%3Atrue%7D&page={page}",
+    "https://home.ss.ge/en/real-estate/l/Commercial-Real-Estate/For-Rent?cityIdList=95&currencyId=1&advancedSearch=%7B%22individualEntityOnly%22%3Atrue%7D&page={page}"
 ]
 
 def fetch_house_images_selenium_sync(house_link):
@@ -273,14 +273,20 @@ def start_selenium():
         all_urls = buy_urls + rent_urls
         
         def scrape_all_pages():
-            for url in all_urls:
-                page = 1
-                while True:
-                    fetched_houses = fetch_houses_from_url(url, page)
-                    if not fetched_houses:  
-                        break
-                    page += 1 
-            scraper_active = False 
+            try:
+                for url in all_urls:
+                    page = 1
+                    while True:
+                        fetched_houses = fetch_houses_from_url(url, page)
+                        if not fetched_houses:  
+                            print(f"No houses found on page {page} for {url}. Moving to the next URL.")
+                            break
+                        print(f"Fetched houses from page {page} for {url}.")
+                        page += 1  
+                print(f"Error during scraping: {e}")
+            finally:
+                global scraper_active
+                scraper_active = False 
         
         scraper_thread = threading.Thread(target=scrape_all_pages, daemon=True)
         scraper_thread.start()
@@ -288,20 +294,23 @@ def start_selenium():
     return redirect(url_for('index'))
 
 
-@app.route('/remove_url', methods=['POST'])
-def remove_url():
-    url_to_remove = request.form.get('url')
 
-    if url_to_remove:
+@app.route('/remove_blocked_urls', methods=['POST'])
+def remove_blocked_urls():
+    blocked_urls = {doc['url'] for doc in blocked_collection.find()}
+
+    if blocked_urls:
         result = collection.update_many(
-            {'photos': url_to_remove}, 
-            {'$pull': {'photos': url_to_remove}}
+            {'photos': {'$in': list(blocked_urls)}}, 
+            {'$pull': {'photos': {'$in': list(blocked_urls)}}} 
         )
 
         if result.modified_count > 0:
-            print(f"Removed {url_to_remove} from {result.modified_count} documents.")
+            print(f"Removed blocked URLs from {result.modified_count} documents.")
         else:
-            print(f"URL {url_to_remove} not found in any document.")
+            print("No blocked URLs found in any document.")
+    else:
+        print("No blocked URLs to remove.")
 
     return redirect(url_for('index'))
 
